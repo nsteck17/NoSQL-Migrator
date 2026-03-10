@@ -1,0 +1,379 @@
+{
+  "database" : "appdb",
+  "collections" : [ {
+    "name" : "mcs_ntfn_msg",
+    "document" : {
+      "_id" : "object",
+      "ntfnMsgId" : "string",
+      "ntfnMsgUserId" : "string",
+      "ntfnMsgType" : "string",
+      "crtnTmst" : "date",
+      "crtnUserId" : "string",
+      "enaMsgId" : "string",
+      "lastUptdTmst" : "date",
+      "lastUptdUserId" : "string",
+      "ntfnId" : "string",
+      "ntfnStatSeqId" : "string",
+      "crtnUserTrckId" : "string",
+      "lastUptdUserTrckId" : "string",
+      "orglMsgFmtData" : "string",
+      "msgDlvyChnlType" : "string",
+      "odsLoadTmst" : "date",
+      "msgDlvyAddr" : "string"
+    },
+    "required" : [ "_id", "ntfnMsgId", "ntfnId", "ntfnStatSeqId" ],
+    "indexes" : [ ],
+    "relationships" : [ ],
+    "partitionKey" : "_id"
+  }, {
+    "name" : "mcs_ntfn_msg_stat",
+    "document" : {
+      "_id" : "object",
+      "ntfnMsgStatId" : "string",
+      "ntfnMsgId" : "string",
+      "ntfnHistStatInd" : "string",
+      "ntfnMsgStatCode" : "string",
+      "msgStatCrtnTmst" : "date",
+      "crtnTmst" : "date",
+      "crtnUserId" : "string",
+      "crtnUserTrckId" : "string",
+      "lastUptdTmst" : "date",
+      "lastUptdUserId" : "string",
+      "lastUptdUserTrckId" : "string",
+      "odsLoadTmst" : "date"
+    },
+    "required" : [ "_id", "ntfnMsgStatId", "ntfnMsgId" ],
+    "indexes" : [ ],
+    "relationships" : [ ],
+    "partitionKey" : "_id"
+  }, {
+    "name" : "mcs_ntfn_emal",
+    "document" : {
+      "_id" : "object",
+      "ntfnId" : "string",
+      "ntfnEmalId" : "string",
+      "emalUserId" : "string",
+      "ntfnEmalAddr" : "string",
+      "crtnTmst" : "date",
+      "crtnUserId" : "string",
+      "odsLoadTmst" : "date"
+    },
+    "required" : [ "_id", "ntfnId", "ntfnEmalId" ],
+    "indexes" : [ ],
+    "relationships" : [ ],
+    "partitionKey" : "_id"
+  }, {
+    "name" : "mcs_ntfn",
+    "document" : {
+      "_id" : "object",
+      "ntfnId" : "string",
+      "ordHdrId" : "string",
+      "ntfnSevrCode" : "string",
+      "ntfnTypeCode" : "string",
+      "ntfnResnCode" : "string",
+      "physResrId" : "string",
+      "prTySupId" : "string",
+      "crtnLnrLocaSpotId" : "string",
+      "reprFacAreaId" : "string",
+      "crtnTmst" : "date",
+      "crtnUserId" : "string",
+      "lastUptdTmst" : "date",
+      "lastUptdUserId" : "string",
+      "odsLoadTmst" : "date",
+      "crtnUserTrckId" : "string",
+      "probCntrMsurShtInd" : "string",
+      "ordItemOrdHdrId" : "string",
+      "ordItemPhysResrId" : "string",
+      "itemWorkId" : "string",
+      "ntfnSrcInd" : "string",
+      "lastUptdUserTrckId" : "string",
+      "ntfnCatgInd" : "string"
+    },
+    "required" : [ "_id", "ntfnId" ],
+    "indexes" : [ ],
+    "relationships" : [ ],
+    "partitionKey" : "_id"
+  }, {
+    "name" : "mcs_ntfn_stat",
+    "document" : {
+      "_id" : "object",
+      "ntfnId" : "string",
+      "seqId" : "string",
+      "ntfnHistStatInd" : "string",
+      "ntfnStatCode" : "string",
+      "cmntText" : "string",
+      "crtnTmst" : "date",
+      "crtnUserId" : "string",
+      "lastUptdTmst" : "date",
+      "lastUptdUserId" : "string",
+      "odsLoadTmst" : "date",
+      "crtnUserTrckId" : "string",
+      "lastUptdUserTrckId" : "string"
+    },
+    "required" : [ "_id", "ntfnId", "seqId" ],
+    "indexes" : [ ],
+    "relationships" : [ ],
+    "partitionKey" : "_id"
+  }, {
+    "name" : "mcs_ntfn_stat_cmnt",
+    "document" : {
+      "_id" : "object",
+      "ntfnStatCmntId" : "string",
+      "ntfnId" : "string",
+      "ntfnStatSeqId" : "string",
+      "ntfnHistStatInd" : "string",
+      "cmntText" : "string",
+      "crtnTmst" : "date",
+      "crtnUserId" : "string",
+      "lastUptdTmst" : "date",
+      "lastUptdUserId" : "string",
+      "crtnUserTrckId" : "string",
+      "lastUptdUserTrckId" : "string",
+      "odsLoadTmst" : "date",
+      "devId" : "string"
+    },
+    "required" : [ "_id", "ntfnStatCmntId", "ntfnId", "ntfnStatSeqId" ],
+    "indexes" : [ ],
+    "relationships" : [ ],
+    "partitionKey" : "_id"
+  } ],
+  "notes" : [ ]
+}
+
+--- DDL Table to NoSQL Collection Map ---
+Table: mcs_ntfn_msg
+{
+  "name" : "mcs_ntfn_msg",
+  "document" : {
+    "_id" : "object",
+    "ntfnMsgId" : "string",
+    "ntfnMsgUserId" : "string",
+    "ntfnMsgType" : "string",
+    "crtnTmst" : "date",
+    "crtnUserId" : "string",
+    "enaMsgId" : "string",
+    "lastUptdTmst" : "date",
+    "lastUptdUserId" : "string",
+    "ntfnId" : "string",
+    "ntfnStatSeqId" : "string",
+    "crtnUserTrckId" : "string",
+    "lastUptdUserTrckId" : "string",
+    "orglMsgFmtData" : "string",
+    "msgDlvyChnlType" : "string",
+    "odsLoadTmst" : "date",
+    "msgDlvyAddr" : "string"
+  },
+  "required" : [ "_id", "ntfnMsgId", "ntfnId", "ntfnStatSeqId" ],
+  "indexes" : [ ],
+  "relationships" : [ ],
+  "partitionKey" : "_id"
+}
+Table: mcs_ntfn_msg_stat
+{
+  "name" : "mcs_ntfn_msg_stat",
+  "document" : {
+    "_id" : "object",
+    "ntfnMsgStatId" : "string",
+    "ntfnMsgId" : "string",
+    "ntfnHistStatInd" : "string",
+    "ntfnMsgStatCode" : "string",
+    "msgStatCrtnTmst" : "date",
+    "crtnTmst" : "date",
+    "crtnUserId" : "string",
+    "crtnUserTrckId" : "string",
+    "lastUptdTmst" : "date",
+    "lastUptdUserId" : "string",
+    "lastUptdUserTrckId" : "string",
+    "odsLoadTmst" : "date"
+  },
+  "required" : [ "_id", "ntfnMsgStatId", "ntfnMsgId" ],
+  "indexes" : [ ],
+  "relationships" : [ ],
+  "partitionKey" : "_id"
+}
+Table: mcs_ntfn_emal
+{
+  "name" : "mcs_ntfn_emal",
+  "document" : {
+    "_id" : "object",
+    "ntfnId" : "string",
+    "ntfnEmalId" : "string",
+    "emalUserId" : "string",
+    "ntfnEmalAddr" : "string",
+    "crtnTmst" : "date",
+    "crtnUserId" : "string",
+    "odsLoadTmst" : "date"
+  },
+  "required" : [ "_id", "ntfnId", "ntfnEmalId" ],
+  "indexes" : [ ],
+  "relationships" : [ ],
+  "partitionKey" : "_id"
+}
+Table: mcs_ntfn
+{
+  "name" : "mcs_ntfn",
+  "document" : {
+    "_id" : "object",
+    "ntfnId" : "string",
+    "ordHdrId" : "string",
+    "ntfnSevrCode" : "string",
+    "ntfnTypeCode" : "string",
+    "ntfnResnCode" : "string",
+    "physResrId" : "string",
+    "prTySupId" : "string",
+    "crtnLnrLocaSpotId" : "string",
+    "reprFacAreaId" : "string",
+    "crtnTmst" : "date",
+    "crtnUserId" : "string",
+    "lastUptdTmst" : "date",
+    "lastUptdUserId" : "string",
+    "odsLoadTmst" : "date",
+    "crtnUserTrckId" : "string",
+    "probCntrMsurShtInd" : "string",
+    "ordItemOrdHdrId" : "string",
+    "ordItemPhysResrId" : "string",
+    "itemWorkId" : "string",
+    "ntfnSrcInd" : "string",
+    "lastUptdUserTrckId" : "string",
+    "ntfnCatgInd" : "string"
+  },
+  "required" : [ "_id", "ntfnId" ],
+  "indexes" : [ ],
+  "relationships" : [ ],
+  "partitionKey" : "_id"
+}
+Table: mcs_ntfn_stat
+{
+  "name" : "mcs_ntfn_stat",
+  "document" : {
+    "_id" : "object",
+    "ntfnId" : "string",
+    "seqId" : "string",
+    "ntfnHistStatInd" : "string",
+    "ntfnStatCode" : "string",
+    "cmntText" : "string",
+    "crtnTmst" : "date",
+    "crtnUserId" : "string",
+    "lastUptdTmst" : "date",
+    "lastUptdUserId" : "string",
+    "odsLoadTmst" : "date",
+    "crtnUserTrckId" : "string",
+    "lastUptdUserTrckId" : "string"
+  },
+  "required" : [ "_id", "ntfnId", "seqId" ],
+  "indexes" : [ ],
+  "relationships" : [ ],
+  "partitionKey" : "_id"
+}
+Table: mcs_ntfn_stat_cmnt
+{
+  "name" : "mcs_ntfn_stat_cmnt",
+  "document" : {
+    "_id" : "object",
+    "ntfnStatCmntId" : "string",
+    "ntfnId" : "string",
+    "ntfnStatSeqId" : "string",
+    "ntfnHistStatInd" : "string",
+    "cmntText" : "string",
+    "crtnTmst" : "date",
+    "crtnUserId" : "string",
+    "lastUptdTmst" : "date",
+    "lastUptdUserId" : "string",
+    "crtnUserTrckId" : "string",
+    "lastUptdUserTrckId" : "string",
+    "odsLoadTmst" : "date",
+    "devId" : "string"
+  },
+  "required" : [ "_id", "ntfnStatCmntId", "ntfnId", "ntfnStatSeqId" ],
+  "indexes" : [ ],
+  "relationships" : [ ],
+  "partitionKey" : "_id"
+}
+
+--- DML SQL Analysis ---
+SQL Statement 1:
+-- Cleaned standard SQL statements extracted from raw-DML.sql
+
+-- 1. SELECT with JOIN (originally with Java string concatenation and Oracle-specific elements)
+SELECT
+    MNS.NTFN_ID,
+    MNS.SEQ_ID,
+    MNS.NTFN_HIST_STAT_IND,
+    MNS.NTFN_STAT_CODE,
+    MNS.CMNT_TEXT,
+    MNS.CRTN_TMST,
+    MNS.CRTN_USER_ID,
+    MNS.LAST_UPTD_TMST,
+    MNS.LAST_UPTD_USER_ID,
+    MNS.CRTN_USER_TRCK_ID,
+    MNS.LAST_UPTD_USER_TRCK_ID,
+    MNSC.NTFN_STAT_CMNT_ID,
+    MNSC.NTFN_HIST_STAT_IND AS MNSC_NTFN_HIST_STAT_IND,
+    MNSC.CMNT_TEXT AS MNSC_CMNT_TEXT,
+    MNSC.CRTN_TMST AS MNSC_CRTN_TMST,
+    MNSC.CRTN_USER_ID AS MNSC_CRTN_USER_ID,
+    MNSC.LAST_UPTD_TMST AS MNSC_LAST_UPTD_TMST,
+    MNSC.LAST_UPTD_USER_ID AS MNSC_LAST_UPTD_USER_ID,
+    MNSC.CRTN_USER_TRCK_ID AS MNSC_CRTN_USER_TRCK_ID,
+    MNSC.LAST_UPTD_USER_TRCK_ID AS MNSC_LAST_UPTD_USER_TRCK_ID
+FROM MCS_NTFN_STAT MNS
+LEFT JOIN MCS_NTFN_STAT_CMNT MNSC
+    ON MNS.NTFN_ID = MNSC.NTFN_ID
+    AND MNS.SEQ_ID = MNSC.NTFN_STAT_SEQ_ID
+WHERE MNS.NTFN_ID IN (?);
+  Contains JOIN: false
+  Columns in WHERE clause: None
+
+SQL Statement 2:
+-- 2. INSERT statement (standardized, removed Java formatting)
+INSERT INTO MCS_NTFN_STAT_CMNT (
+    NTFN_STAT_CMNT_ID,
+    NTFN_ID,
+    NTFN_STAT_SEQ_ID,
+    NTFN_HIST_STAT_IND,
+    CMNT_TEXT,
+    CRTN_TMST
+) VALUES (
+    ?, ?, ?, ?, ?, CURRENT_TIMESTAMP
+);
+  Contains JOIN: false
+  Columns in WHERE clause: None
+
+SQL Statement 3:
+-- 3. SELECT with GROUP BY and date filtering (SYSDATE replaced)
+SELECT
+    NS.NTFN_STAT_CODE,
+    COUNT(*) AS COUNT
+FROM MCS_NTFN N
+JOIN MCS_NTFN_STAT NS ON NS.NTFN_ID = N.NTFN_ID
+    AND NS.NTFN_HIST_STAT_IND = 'C'
+WHERE (
+    (NS.NTFN_STAT_CODE = 'C' AND NS.CRTN_TMST >= CURRENT_TIMESTAMP - INTERVAL '1' DAY)
+    OR (NS.NTFN_STAT_CODE <> 'C')
+)
+AND N.REPR_FAC_AREA_ID = ?
+GROUP BY NS.NTFN_STAT_CODE;
+  Contains JOIN: false
+  Columns in WHERE clause: None
+
+SQL Statement 4:
+-- 4. SELECT with IN clause (parameterized)
+SELECT
+    NTFN.PHYS_RESR_ID AS physicalResourceId,
+    NTFN.NTFN_SEVR_CODE AS severityCode
+FROM MCS_NTFN NTFN
+INNER JOIN MCS_NTFN_STAT HIST ON HIST.NTFN_ID = NTFN.NTFN_ID
+WHERE HIST.NTFN_HIST_STAT_IND = 'C'
+    AND HIST.NTFN_STAT_CODE NOT IN ('C','X')
+    AND NTFN.PHYS_RESR_ID IN (?);
+  Contains JOIN: false
+  Columns in WHERE clause: None
+
+SQL Statement 5:
+-- Add more cleaned statements as needed following this pattern.
+  Contains JOIN: false
+  Columns in WHERE clause: None
+
+
+--- Suggested Index Columns (from WHERE clauses) ---
+No columns found in WHERE clauses.

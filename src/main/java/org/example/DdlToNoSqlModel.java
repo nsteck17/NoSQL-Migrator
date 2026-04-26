@@ -23,39 +23,21 @@ public class DdlToNoSqlModel {
     // Global map: DDL table name -> NoSQL collection object
     public static final Map<String, ObjectNode> tableToCollectionMap = new LinkedHashMap<>();
 
-    public static void main(String[] args) throws Exception {
-        String ddl = ""
-                + "CREATE TABLE public.users (\n"
-                + "  id BIGINT PRIMARY KEY,\n"
-                + "  org_id BIGINT NOT NULL,\n"
-                + "  email VARCHAR(255) NOT NULL UNIQUE,\n"
-                + "  name VARCHAR(120) NOT NULL,\n"
-                + "  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP\n"
-                + ") TABLESPACE user_space;\n"
-                + "CREATE TABLE public.orgs (\n"
-                + "  id BIGINT PRIMARY KEY,\n"
-                + "  name VARCHAR(200) NOT NULL,\n"
-                + "  plan VARCHAR(20) NOT NULL\n"
-                + ") TABLESPACE org_space;\n"
-                + "CREATE TABLE public.user_addresses (\n"
-                + "  id BIGINT PRIMARY KEY,\n"
-                + "  user_id BIGINT NOT NULL,\n"
-                + "  line1 VARCHAR(200) NOT NULL,\n"
-                + "  city VARCHAR(120) NOT NULL,\n"
-                + "  state VARCHAR(2) NOT NULL,\n"
-                + "  zip VARCHAR(10) NOT NULL\n"
-                + ") TABLESPACE addr_space;\n"
-                + "CREATE TABLE public.users_roles (\n"
-                + "  user_id BIGINT NOT NULL,\n"
-                + "  role VARCHAR(50) NOT NULL,\n"
-                + "  PRIMARY KEY (user_id, role)\n"
-                + ") TABLESPACE role_space;\n";
 
-        String json = convertDdlToNoSqlDesign(ddl, "appdb");
-        System.out.println(json);
+    // Overload for backward compatibility (no explicit embedding)
+    public static String convertDdlToNoSqlDesign(String ddl, String databaseName) throws Exception {
+        return convertDdlToNoSqlDesign(ddl, databaseName, null);
     }
 
-    public static String convertDdlToNoSqlDesign(String ddl, String databaseName) throws Exception {
+    /**
+     * Converts DDL to NoSQL design, with optional explicit parent-child embedding map.
+     * @param ddl SQL DDL string
+     * @param databaseName logical DB name
+     * @param embedMap map of parent table name (lowercase) to list of child table names (lowercase) to embed
+     * @return JSON string
+     * @throws Exception on parse error
+     */
+    public static String convertDdlToNoSqlDesign(String ddl, String databaseName, Map<String, List<String>> embedMap) throws Exception {
         // Clear global map before conversion
         tableToCollectionMap.clear();
 
@@ -116,71 +98,104 @@ public class DdlToNoSqlModel {
             }
         }
 
-        // Build NoSQL design
+        // Build NoSQL design with true recursive embedding
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode root = mapper.createObjectNode();
         root.put("database", databaseName);
         ArrayNode collections = root.putArray("collections");
         ArrayNode notes = root.putArray("notes");
 
-        // Simple partition key default (override per your multi-tenant strategy)
         String defaultPartitionKey = guessPartitionKey(tables.keySet());
-
-        // Detect junction tables and child tables
         Set<String> junctions = detectJunctionTables(tables);
-        Map<String, List<TableMeta>> childrenByParent = detectChildTables(tables);
 
+        // Build parent-child map from FKs for embedding (child table as array in parent)
+        Map<String, List<TableMeta>> parentToChildren = new HashMap<>();
+        for (TableMeta t : tables.values()) {
+            for (ColumnMeta c : t.columns.values()) {
+                if (c.references != null) {
+                    String parent = c.references.table;
+                    parentToChildren.computeIfAbsent(parent, k -> new ArrayList<>()).add(t);
+                }
+            }
+        }
+        if (embedMap != null) {
+            for (Map.Entry<String, List<String>> entry : embedMap.entrySet()) {
+                String parent = entry.getKey().toLowerCase(Locale.ROOT);
+                for (String child : entry.getValue()) {
+                    String childLower = child.toLowerCase(Locale.ROOT);
+                    TableMeta parentMeta = tables.get(parent);
+                    TableMeta childMeta = tables.get(childLower);
+                    if (parentMeta != null && childMeta != null) {
+                        parentToChildren.computeIfAbsent(parent, k -> new ArrayList<>()).add(childMeta);
+                    }
+                }
+            }
+        }
+
+        // Track which tables are embedded so we can skip them as top-level collections
+        Set<String> embeddedChildren = new HashSet<>();
+        for (Map.Entry<String, List<TableMeta>> entry : parentToChildren.entrySet()) {
+            for (TableMeta child : entry.getValue()) {
+                embeddedChildren.add(child.nameLower);
+            }
+        }
+
+        // Recursive helper to build document fields and recursively embed children
+        java.util.function.BiConsumer<ObjectNode, TableMeta> addFieldsAndEmbeddedChildren = new java.util.function.BiConsumer<>() {
+            @Override
+            public void accept(ObjectNode doc, TableMeta t) {
+                Set<String> required = new LinkedHashSet<>();
+                // _id
+                String idField = "_id";
+                addField(doc, idField, t.primaryKey.size() == 1 ? mapType(t.columns.get(t.primaryKey.get(0)).type) : "object");
+                required.add(idField);
+                // Other columns
+                for (ColumnMeta c : t.columns.values()) {
+                    if (t.primaryKey.contains(c.nameLower)) continue; // already mapped to _id
+                    String fieldName = toCamel(c.name);
+                    addField(doc, fieldName, mapType(c.type));
+                    if (!c.nullable) required.add(fieldName);
+                }
+                // Embed children recursively
+                List<TableMeta> children = parentToChildren.getOrDefault(t.nameLower, Collections.emptyList());
+                for (TableMeta child : children) {
+                    String arrayField = pluralize(toCamel(child.baseNameFromParent(t.nameLower)));
+                    // Add array of child documents
+                    ObjectNode arrayNode = doc.putArray(arrayField).addObject();
+                    arrayNode.put("originalTable", child.name); // <-- Add originalTable field
+                    accept(arrayNode, child);
+                    notes.add("Embedded '" + child.name + "' into '" + t.name + "' as '" + arrayField + "'.");
+                }
+                // Store required fields for this doc (if at top level)
+                ArrayNode reqArr = doc.putArray("_requiredFields");
+                for (String req : required) reqArr.add(req);
+            }
+        };
+
+        // Output only top-level collections (not embedded as children)
         for (TableMeta t : tables.values()) {
             if (junctions.contains(t.nameLower)) {
-                // Skip creating collection if we'll denormalize into parent
                 notes.add("Junction table '" + t.name + "' detected; consider denormalizing into parent.");
                 continue;
             }
-
+            if (embeddedChildren.contains(t.nameLower)) {
+                notes.add("Table '" + t.name + "' embedded in parent; not output as top-level collection.");
+                continue;
+            }
             ObjectNode coll = collections.addObject();
             coll.put("name", toCollectionName(t.name));
-
-            // Store mapping: table name -> collection object
             tableToCollectionMap.put(t.nameLower, coll);
-
-            // Document shape
             ObjectNode doc = coll.putObject("document");
-            Set<String> required = new LinkedHashSet<>();
-
-            // _id
-            String idField = "_id";
-            addField(doc, idField, t.primaryKey.size() == 1 ? mapType(t.columns.get(t.primaryKey.get(0)).type) : "object");
-            required.add(idField);
-
-            // Other columns
-            for (ColumnMeta c : t.columns.values()) {
-                if (t.primaryKey.contains(c.nameLower)) continue; // already mapped to _id
-                String fieldName = toCamel(c.name);
-                addField(doc, fieldName, mapType(c.type));
-                if (!c.nullable) required.add(fieldName);
-                // Will add unique index later
-            }
-
-            // Embed children if heuristically small child count (name-based heuristic)
-            List<TableMeta> children = childrenByParent.getOrDefault(t.nameLower, Collections.emptyList());
-            for (TableMeta child : children) {
-                String arrayField = pluralize(toCamel(child.baseNameFromParent(t.nameLower)));
-                ObjectNode arrayNode = doc.putArray(arrayField).addObject();
-                // child document fields (excluding FK back to parent)
-                for (ColumnMeta cc : child.columns.values()) {
-                    if (cc.references != null && cc.references.table.equalsIgnoreCase(t.nameLower)) continue;
-                    addField(arrayNode, toCamel(cc.name), mapType(cc.type));
-                }
-                notes.add("Embedded '" + child.name + "' into '" + t.name + "' as '" + arrayField + "'.");
-            }
-
+            addFieldsAndEmbeddedChildren.accept(doc, t);
             // Required
             ArrayNode req = coll.putArray("required");
-            required.forEach(req::add);
-
+            // Copy required fields from doc
+            if (doc.has("_requiredFields")) {
+                for (com.fasterxml.jackson.databind.JsonNode n : doc.get("_requiredFields")) req.add(n.asText());
+                doc.remove("_requiredFields");
+            }
             // Indexes
             ArrayNode idxs = coll.putArray("indexes");
-            // Unique
             t.columns.values().stream().filter(c -> c.isUnique).forEach(c -> {
                 ObjectNode ix = idxs.addObject();
                 ix.put("name", "ux_" + t.nameLower + "_" + c.nameLower);
@@ -192,9 +207,8 @@ public class DdlToNoSqlModel {
             ArrayNode rels = coll.putArray("relationships");
             for (ColumnMeta c : t.columns.values()) {
                 if (c.references != null) {
-                    // Only skip if THIS table is embedded as a child into the referenced table
                     boolean thisTableIsEmbedded = false;
-                    List<TableMeta> parentChildren = childrenByParent.getOrDefault(c.references.table, Collections.emptyList());
+                    List<TableMeta> parentChildren = parentToChildren.getOrDefault(c.references.table, Collections.emptyList());
                     for (TableMeta child : parentChildren) {
                         if (child.nameLower.equals(t.nameLower)) {
                             thisTableIsEmbedded = true;
@@ -211,8 +225,6 @@ public class DdlToNoSqlModel {
                     }
                 }
             }
-
-            // Partition key
             coll.put("partitionKey", choosePartitionKey(t, defaultPartitionKey));
         }
 
@@ -421,5 +433,9 @@ public class DdlToNoSqlModel {
         String table;
         String column;
         Ref(String table, String column) { this.table = table; this.column = column; }
+    }
+
+    public static void main(String[] args) throws Exception {
+        // No demo logic here. Use App.java to invoke this class with desired embedding.
     }
 }

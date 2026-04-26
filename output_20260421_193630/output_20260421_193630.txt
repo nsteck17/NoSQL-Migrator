@@ -1,0 +1,358 @@
+{
+  "database" : "appdb",
+  "collections" : [ {
+    "name" : "mcs_ntfn",
+    "document" : {
+      "_id" : "object",
+      "ntfnId" : "string",
+      "ordHdrId" : "string",
+      "ntfnSevrCode" : "string",
+      "ntfnTypeCode" : "string",
+      "ntfnResnCode" : "string",
+      "physResrId" : "string",
+      "prTySupId" : "string",
+      "crtnLnrLocaSpotId" : "string",
+      "reprFacAreaId" : "string",
+      "crtnTmst" : "date",
+      "crtnUserId" : "string",
+      "lastUptdTmst" : "date",
+      "lastUptdUserId" : "string",
+      "odsLoadTmst" : "date",
+      "crtnUserTrckId" : "string",
+      "probCntrMsurShtInd" : "string",
+      "ordItemOrdHdrId" : "string",
+      "ordItemPhysResrId" : "string",
+      "itemWorkId" : "string",
+      "ntfnSrcInd" : "string",
+      "lastUptdUserTrckId" : "string",
+      "ntfnCatgInd" : "string",
+      "emals" : [ {
+        "originalTable" : "MCS_NTFN_EMAL",
+        "_id" : "object",
+        "ntfnId" : "string",
+        "ntfnEmalId" : "string",
+        "emalUserId" : "string",
+        "ntfnEmalAddr" : "string",
+        "crtnTmst" : "date",
+        "crtnUserId" : "string",
+        "odsLoadTmst" : "date",
+        "_requiredFields" : [ "_id", "ntfnId", "ntfnEmalId" ]
+      } ],
+      "stats" : [ {
+        "originalTable" : "MCS_NTFN_STAT",
+        "_id" : "object",
+        "ntfnId" : "string",
+        "seqId" : "string",
+        "ntfnHistStatInd" : "string",
+        "ntfnStatCode" : "string",
+        "cmntText" : "string",
+        "crtnTmst" : "date",
+        "crtnUserId" : "string",
+        "lastUptdTmst" : "date",
+        "lastUptdUserId" : "string",
+        "odsLoadTmst" : "date",
+        "crtnUserTrckId" : "string",
+        "lastUptdUserTrckId" : "string",
+        "mcsNtfnMsgs" : [ {
+          "originalTable" : "MCS_NTFN_MSG",
+          "_id" : "object",
+          "ntfnMsgId" : "string",
+          "ntfnMsgUserId" : "string",
+          "ntfnMsgType" : "string",
+          "crtnTmst" : "date",
+          "crtnUserId" : "string",
+          "enaMsgId" : "string",
+          "lastUptdTmst" : "date",
+          "lastUptdUserId" : "string",
+          "ntfnId" : "string",
+          "ntfnStatSeqId" : "string",
+          "crtnUserTrckId" : "string",
+          "lastUptdUserTrckId" : "string",
+          "orglMsgFmtData" : "string",
+          "msgDlvyChnlType" : "string",
+          "odsLoadTmst" : "date",
+          "msgDlvyAddr" : "string",
+          "stats" : [ {
+            "originalTable" : "MCS_NTFN_MSG_STAT",
+            "_id" : "object",
+            "ntfnMsgStatId" : "string",
+            "ntfnMsgId" : "string",
+            "ntfnHistStatInd" : "string",
+            "ntfnMsgStatCode" : "string",
+            "msgStatCrtnTmst" : "date",
+            "crtnTmst" : "date",
+            "crtnUserId" : "string",
+            "crtnUserTrckId" : "string",
+            "lastUptdTmst" : "date",
+            "lastUptdUserId" : "string",
+            "lastUptdUserTrckId" : "string",
+            "odsLoadTmst" : "date",
+            "_requiredFields" : [ "_id", "ntfnMsgStatId", "ntfnMsgId" ]
+          } ],
+          "_requiredFields" : [ "_id", "ntfnMsgId", "ntfnId", "ntfnStatSeqId" ]
+        } ],
+        "cmnts" : [ {
+          "originalTable" : "MCS_NTFN_STAT_CMNT",
+          "_id" : "object",
+          "ntfnStatCmntId" : "string",
+          "ntfnId" : "string",
+          "ntfnStatSeqId" : "string",
+          "ntfnHistStatInd" : "string",
+          "cmntText" : "string",
+          "crtnTmst" : "date",
+          "crtnUserId" : "string",
+          "lastUptdTmst" : "date",
+          "lastUptdUserId" : "string",
+          "crtnUserTrckId" : "string",
+          "lastUptdUserTrckId" : "string",
+          "odsLoadTmst" : "date",
+          "devId" : "string",
+          "_requiredFields" : [ "_id", "ntfnStatCmntId", "ntfnId", "ntfnStatSeqId" ]
+        } ],
+        "_requiredFields" : [ "_id", "ntfnId", "seqId" ]
+      } ]
+    },
+    "required" : [ "_id", "ntfnId" ],
+    "indexes" : [ ],
+    "relationships" : [ ],
+    "partitionKey" : "_id"
+  } ],
+  "notes" : [ "Table 'MCS_NTFN_MSG' embedded in parent; not output as top-level collection.", "Table 'MCS_NTFN_MSG_STAT' embedded in parent; not output as top-level collection.", "Table 'MCS_NTFN_EMAL' embedded in parent; not output as top-level collection.", "Embedded 'MCS_NTFN_EMAL' into 'MCS_NTFN' as 'emals'.", "Embedded 'MCS_NTFN_MSG_STAT' into 'MCS_NTFN_MSG' as 'stats'.", "Embedded 'MCS_NTFN_MSG_STAT' into 'MCS_NTFN_MSG' as 'stats'.", "Embedded 'MCS_NTFN_MSG' into 'MCS_NTFN_STAT' as 'mcsNtfnMsgs'.", "Embedded 'MCS_NTFN_STAT_CMNT' into 'MCS_NTFN_STAT' as 'cmnts'.", "Embedded 'MCS_NTFN_STAT' into 'MCS_NTFN' as 'stats'.", "Table 'MCS_NTFN_STAT' embedded in parent; not output as top-level collection.", "Table 'MCS_NTFN_STAT_CMNT' embedded in parent; not output as top-level collection." ]
+}
+
+--- DDL Table to NoSQL Collection Map ---
+All table-to-collection mappings written to: output_20260421_193630/table_to_collections.json (without indexes/relationships)
+
+--- Foreign Key Relationships ---
+Constraint: MCS_NTFN_MSG_F1
+  Foreign Key: (NTFN_ID,NTFN_STAT_SEQ_ID)
+  References: MCS.MCS_NTFN_STAT(NTFN_ID,SEQ_ID)
+Constraint: MCS_NTFN_MSG_STAT_F1
+  Foreign Key: (NTFN_MSG_ID)
+  References: MCS.MCS_NTFN_MSG(NTFN_MSG_ID)
+Constraint: MCS_NTFN_EMAL_F1
+  Foreign Key: (NTFN_ID)
+  References: MCS.MCS_NTFN(NTFN_ID)
+Constraint: MCS_NTFN_MSG_STAT_F1
+  Foreign Key: (NTFN_MSG_ID)
+  References: MCS.MCS_NTFN_MSG(NTFN_MSG_ID)
+Constraint: MCS_NTFN_F1
+  Foreign Key: (ORD_HDR_ID)
+  References: MCS.MCS_ORD_HDR(ORD_HDR_ID)
+Constraint: MCS_NTFN_F2
+  Foreign Key: (ORD_ITEM_ORD_HDR_ID,ORD_ITEM_PHYS_RESR_ID,ITEM_WORK_ID)
+  References: MCS.MCS_ORD_ITEM(ORD_HDR_ID,PHYS_RESR_ID,ITEM_WORK_ID)
+Constraint: MCS_NTFM_STAT_F1
+  Foreign Key: (NTFN_ID)
+  References: MCS.MCS_NTFN(NTFN_ID)
+Constraint: MCS_NTFN_STAT_CMNT_F1
+  Foreign Key: (NTFN_ID,NTFN_STAT_SEQ_ID)
+  References: MCS.MCS_NTFN_STAT(NTFN_ID,SEQ_ID)
+
+--- DML SQL Analysis ---
+SQL Statement 1:
+-- Cleaned standard SQL statements extracted from raw-DML.sql
+
+-- 1. SELECT with JOIN (originally with Java string concatenation and Oracle-specific elements)
+SELECT
+    MNS.NTFN_ID,
+    MNS.SEQ_ID,
+    MNS.NTFN_HIST_STAT_IND,
+    MNS.NTFN_STAT_CODE,
+    MNS.CMNT_TEXT,
+    MNS.CRTN_TMST,
+    MNS.CRTN_USER_ID,
+    MNS.LAST_UPTD_TMST,
+    MNS.LAST_UPTD_USER_ID,
+    MNS.CRTN_USER_TRCK_ID,
+    MNS.LAST_UPTD_USER_TRCK_ID,
+    MNSC.NTFN_STAT_CMNT_ID,
+    MNSC.NTFN_HIST_STAT_IND AS MNSC_NTFN_HIST_STAT_IND,
+    MNSC.CMNT_TEXT AS MNSC_CMNT_TEXT,
+    MNSC.CRTN_TMST AS MNSC_CRTN_TMST,
+    MNSC.CRTN_USER_ID AS MNSC_CRTN_USER_ID,
+    MNSC.LAST_UPTD_TMST AS MNSC_LAST_UPTD_TMST,
+    MNSC.LAST_UPTD_USER_ID AS MNSC_LAST_UPTD_USER_ID,
+    MNSC.CRTN_USER_TRCK_ID AS MNSC_CRTN_USER_TRCK_ID,
+    MNSC.LAST_UPTD_USER_TRCK_ID AS MNSC_LAST_UPTD_USER_TRCK_ID
+FROM MCS_NTFN_STAT MNS
+LEFT JOIN MCS_NTFN_STAT_CMNT MNSC
+    ON MNS.NTFN_ID = MNSC.NTFN_ID
+    AND MNS.SEQ_ID = MNSC.NTFN_STAT_SEQ_ID
+WHERE MNS.NTFN_ID IN (?);
+  All JOIN tables in DDL: true
+    JOIN table match details: MCS_NTFN_STAT (direct match as table or mapped property), MCS_NTFN_STAT_CMNT (direct match as table or mapped property)
+  Has JOIN tables: true
+  Contains JOIN: true
+  Columns in WHERE clause: MNS.NTFN_ID
+  Operators in WHERE clause: None
+
+SQL Statement 2:
+-- 2. INSERT statement (standardized, removed Java formatting)
+INSERT INTO MCS_NTFN_STAT_CMNT (
+    NTFN_STAT_CMNT_ID,
+    NTFN_ID,
+    NTFN_STAT_SEQ_ID,
+    NTFN_HIST_STAT_IND,
+    CMNT_TEXT,
+    CRTN_TMST
+) VALUES (
+    ?, ?, ?, ?, ?, CURRENT_TIMESTAMP
+);
+  All JOIN tables in DDL: true
+  Has JOIN tables: false
+  Contains JOIN: false
+  Columns in WHERE clause: None
+  Operators in WHERE clause: None
+
+SQL Statement 3:
+-- 3. SELECT with GROUP BY and date filtering (SYSDATE replaced)
+SELECT
+    NS.NTFN_STAT_CODE,
+    COUNT(*) AS COUNT
+FROM MCS_NTFN N
+JOIN MCS_NTFN_STAT NS ON NS.NTFN_ID = N.NTFN_ID
+    AND NS.NTFN_HIST_STAT_IND = 'C'
+WHERE (
+    (NS.NTFN_STAT_CODE = 'C' AND NS.CRTN_TMST >= CURRENT_TIMESTAMP - INTERVAL '1' DAY)
+    OR (NS.NTFN_STAT_CODE <> 'C')
+)
+AND N.REPR_FAC_AREA_ID = ?
+GROUP BY NS.NTFN_STAT_CODE;
+  All JOIN tables in DDL: true
+    JOIN table match details: MCS_NTFN (direct match as table or mapped property), MCS_NTFN_STAT (direct match as table or mapped property)
+  Has JOIN tables: true
+  Contains JOIN: true
+  Columns in WHERE clause: NS.NTFN_STAT_CODE, NS.CRTN_TMST, N.REPR_FAC_AREA_ID
+  Operators in WHERE clause: =, >=, !=, =
+
+SQL Statement 4:
+-- 4. SELECT with IN clause (parameterized)
+SELECT
+    NTFN.PHYS_RESR_ID AS physicalResourceId,
+    NTFN.NTFN_SEVR_CODE AS severityCode
+FROM MCS_NTFN NTFN
+INNER JOIN MCS_NTFN_STAT HIST ON HIST.NTFN_ID = NTFN.NTFN_ID
+WHERE HIST.NTFN_HIST_STAT_IND = 'C'
+    AND HIST.NTFN_STAT_CODE NOT IN ('C','X')
+    AND NTFN.PHYS_RESR_ID IN (?);
+  All JOIN tables in DDL: true
+    JOIN table match details: MCS_NTFN (direct match as table or mapped property), MCS_NTFN_STAT (direct match as table or mapped property)
+  Has JOIN tables: true
+  Contains JOIN: true
+  Columns in WHERE clause: HIST.NTFN_HIST_STAT_IND, HIST.NTFN_STAT_CODE, NTFN.PHYS_RESR_ID
+  Operators in WHERE clause: =
+
+SQL Statement 5:
+-- 5. Cleaned and formatted version of the query below
+SELECT
+    HISTORYTABLE.NTFN_ID,
+    HISTORYTABLE.SEQ_ID,
+    HISTORYTABLE.NTFN_STAT_CODE AS STATUSCODE,
+    (
+        SELECT VALU_SHRT_DESC
+        FROM MCS.ACA_CD_TBL_HDR H
+        LEFT JOIN MCS.ACA_CD_TBL_VALU V ON H.CODE_TBL_HDR_ID = V.CODE_TBL_HDR_ID
+        WHERE H.VALU_LABL_NM = 'ILP NOTIFY STATUS CODES'
+          AND VALU_TEXT = HISTORYTABLE.NTFN_STAT_CODE
+          AND ROWNUM = 1 -- Oracle-specific: returns only the first match
+    ) AS statusDescription,
+    (HISTORYTABLE.CRTN_TMST + (locStn.CST_OSET_VALU / 24)) AS statusAdjustedTime,
+    HISTORYTABLE.CRTN_TMST AS statusCreationDate,
+    (cmts.CRTN_TMST + (locStn.CST_OSET_VALU / 24)) AS commentAdjustedTime,
+    cmts.CRTN_TMST AS commentCreationDate,
+    cmts.CMNT_TEXT AS COMMENTS,
+    cmts.NTFN_STAT_CMNT_ID AS commentId,
+    HISTORYTABLE.CRTN_USER_ID AS statusUserId,
+    HISTORYTABLE.CRTN_USER_TRCK_ID AS statusEmplId,
+    CASE
+        WHEN HISTORYTABLE.CRTN_USER_TRCK_ID = 'AUTOESCL' THEN 'AUTO'
+        ELSE (
+            SELECT person.FIR_NAME
+            FROM mcs_pno_pers_v1 person
+            WHERE person.full_pers_id = HISTORYTABLE.CRTN_USER_TRCK_ID
+        )
+    END AS statusCreateFirstName,
+    CASE
+        WHEN HISTORYTABLE.CRTN_USER_TRCK_ID = 'AUTOESCL' THEN 'ESCALATED'
+        ELSE (
+            SELECT person.LAST_NAME
+            FROM mcs_pno_pers_v1 person
+            WHERE person.full_pers_id = HISTORYTABLE.CRTN_USER_TRCK_ID
+        )
+    END AS statusCreateLastName,
+    cmts.CRTN_USER_ID AS commentCreatedUserId,
+    cmts.CRTN_USER_TRCK_ID AS commentCreatedEmplId,
+    CASE
+        WHEN cmts.CRTN_USER_TRCK_ID = 'AUTOESCL' THEN 'AUTO'
+        ELSE (
+            SELECT person.FIR_NAME
+            FROM mcs_pno_pers_v1 person
+            WHERE person.full_pers_id = cmts.CRTN_USER_TRCK_ID
+        )
+    END AS commentCreateFirstName,
+    CASE
+        WHEN cmts.CRTN_USER_TRCK_ID = 'AUTOESCL' THEN 'ESCALATED'
+        ELSE (
+            SELECT person.LAST_NAME
+            FROM mcs_pno_pers_v1 person
+            WHERE person.full_pers_id = cmts.CRTN_USER_TRCK_ID
+        )
+    END AS commentCreateLastName
+FROM MCS_NTFN_STAT HISTORYTABLE
+    LEFT JOIN MCS_NTFN NFT ON HISTORYTABLE.NTFN_ID = NFT.NTFN_ID
+    LEFT JOIN sfm_repr_fac_area RepairArea ON RepairArea.Repr_Fac_Area_Id = NFT.REPR_FAC_AREA_ID
+    LEFT JOIN mcs_work_repr_fac RepairFac ON RepairFac.WORK_UNIT_ID = RepairArea.WORK_UNIT_ID
+    LEFT JOIN mcs_loc_sys_stn_v1 locStn ON locStn.STN_CRC7_CODE = RepairFac.REPR_FAC_CRC7
+    LEFT JOIN MCS_NTFN_STAT_CMNT cmts ON HISTORYTABLE.NTFN_ID = cmts.NTFN_ID
+        AND HISTORYTABLE.SEQ_ID = cmts.NTFN_STAT_SEQ_ID
+WHERE HISTORYTABLE.NTFN_ID = ?
+ORDER BY HISTORYTABLE.SEQ_ID DESC;
+  All JOIN tables in DDL: false
+    Reason: Missing tables in DDL: sfm_repr_fac_area (not found as table or embedded property in NoSQL schema), mcs_work_repr_fac (not found as table or embedded property in NoSQL schema), mcs_loc_sys_stn_v1 (not found as table or embedded property in NoSQL schema)
+    JOIN table match details: MCS_NTFN_STAT (direct match as table or mapped property), MCS_NTFN (direct match as table or mapped property), MCS_NTFN_STAT_CMNT (direct match as table or mapped property)
+  Has JOIN tables: true
+  Contains JOIN: true
+  Columns in WHERE clause: HISTORYTABLE.NTFN_ID
+  Operators in WHERE clause: =
+
+SQL Statement 6:
+-- 6. query with comparison > or < clause
+SELECT
+    NTFN_ID
+FROM MCS_NTFN_STAT
+WHERE NTFN_ID = ?
+AND CRTN_TMST > (CURRENT_TIMESTAMP - INTERVAL '1' DAY)
+ORDER BY SEQ_ID DESC;
+  All JOIN tables in DDL: true
+    JOIN table match details: MCS_NTFN_STAT (direct match as table or mapped property)
+  Has JOIN tables: true
+  Contains JOIN: false
+  Columns in WHERE clause: NTFN_ID, CRTN_TMST
+  Operators in WHERE clause: =, >
+
+SQL Statement 7:
+-- 7. query with comparison = ok
+SELECT
+    NTFN_ID
+FROM MCS_NTFN_STAT
+WHERE NTFN_ID = ?
+AND CRTN_TMST = (CURRENT_TIMESTAMP - INTERVAL '1' DAY)
+ORDER BY SEQ_ID DESC;
+  All JOIN tables in DDL: true
+    JOIN table match details: MCS_NTFN_STAT (direct match as table or mapped property)
+  Has JOIN tables: true
+  Contains JOIN: false
+  Columns in WHERE clause: NTFN_ID, CRTN_TMST
+  Operators in WHERE clause: =, =
+
+
+--- Suggested Parent-Child Embedding for NoSQL ---
+Parent: MCS.MCS_NTFN_STAT, Child: MCS.MCS_NTFN_MSG  =>  Suggest: Embed MCS.MCS_NTFN_MSG as a list in MCS.MCS_NTFN_STAT
+Parent: MCS.MCS_NTFN_MSG, Child: MCS.MCS_NTFN_MSG_STAT  =>  Suggest: Embed MCS.MCS_NTFN_MSG_STAT as a list in MCS.MCS_NTFN_MSG
+Parent: MCS.MCS_NTFN, Child: MCS.MCS_NTFN_EMAL  =>  Suggest: Embed MCS.MCS_NTFN_EMAL as a list in MCS.MCS_NTFN
+Parent: MCS.MCS_NTFN_MSG, Child: MCS.MCS_NTFN_MSG_STAT  =>  Suggest: Embed MCS.MCS_NTFN_MSG_STAT as a list in MCS.MCS_NTFN_MSG
+Parent: MCS.MCS_ORD_HDR, Child: MCS.MCS_NTFN  =>  Suggest: Embed MCS.MCS_NTFN as a list in MCS.MCS_ORD_HDR
+Parent: MCS.MCS_ORD_ITEM, Child: MCS.MCS_NTFN  =>  Suggest: Embed MCS.MCS_NTFN as a list in MCS.MCS_ORD_ITEM
+Parent: MCS.MCS_NTFN, Child: MCS.MCS_NTFN_STAT  =>  Suggest: Embed MCS.MCS_NTFN_STAT as a list in MCS.MCS_NTFN
+Parent: MCS.MCS_NTFN_STAT, Child: MCS.MCS_NTFN_STAT_CMNT  =>  Suggest: Embed MCS.MCS_NTFN_STAT_CMNT as a list in MCS.MCS_NTFN_STAT

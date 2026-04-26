@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.www.up.com/netcontrol/data-models/coherence/train/bulk-train-release-request-cache" elementFormDefault="qualified" targetNamespace="http://schemas.www.up.com/netcontrol/data-models/coherence/train/bulk-train-release-request-cache">
+    <xs:element name="bulk-train-release-request" type="BulkTrainReleaseRequestType"/>
+    <xs:complexType name="BulkTrainReleaseRequestType">
+        <xs:annotation>
+            <xs:documentation>This cache saves bulk train release requests coming from UTCI.</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="train-identification" type="TrainIdentificationType">
+                <xs:annotation>
+                    <xs:documentation>Unique identifier for the record</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="release-location-SSID" type="SystemStationIdType">
+                <xs:annotation>
+                    <xs:documentation>Released train location.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="request-list" type="RequestListType"/>
+            <xs:element minOccurs="0" name="expiration-date-time" type="xs:dateTime"/>
+            <xs:element name="transaction-version-number" type="xs:long"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="RequestListType">
+        <xs:sequence>
+            <xs:element maxOccurs="50" minOccurs="0" name="request" type="RequestType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="RequestType">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="correlation-id" type="xs:string"/>
+            <xs:element minOccurs="0" name="submitted-date-time" type="xs:dateTime">
+                <xs:annotation>
+                    <xs:documentation>Release request submitted date time.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="release-date-time" type="xs:dateTime">
+                <xs:annotation>
+                    <xs:documentation>Release date time.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="action-type" type="xs:string"/>
+            <xs:element minOccurs="0" name="request-detail" type="RequestDetailType"/>
+            <xs:element minOccurs="0" name="release-equipment-list" type="ReleaseEquipmentListType"/>
+            <xs:element minOccurs="0" name="task-and-status-list" type="TaskAndStatusListType"/>
+            <xs:element minOccurs="0" name="request-status" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>Request status : Received, InProcess, Completed, Aborted etc.... CodeIDType: BlkTrnRlseReqSt</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="process-start-date-time" type="xs:dateTime"/>
+            <xs:element minOccurs="0" name="process-completed-date-time" type="xs:dateTime"/>
+            <xs:element minOccurs="0" name="audit" type="AuditType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="RequestDetailType">
+        <xs:choice>
+            <xs:element minOccurs="0" name="uti-request-detail" type="UtiRequestDetailType"/>
+            <xs:element minOccurs="0" name="tmi-request-detail" type="TmiRequestDetailType"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <xs:complexType name="UtiRequestDetailType">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="requested-user-id" type="xs:string"/>
+            <xs:element minOccurs="0" name="user-release-comment" type="xs:string"/>
+            <xs:element minOccurs="0" name="train-load-empty-code" type="xs:string"/>
+            <xs:element minOccurs="0" name="total-expected-cars-on-train" type="xs:int"/>
+            <xs:element minOccurs="0" name="multi-waybill-and-release-detail" type="MultiWaybillAndReleaseDetailType"/>
+            <xs:element minOccurs="0" name="train-release-comments-list" type="TrainReleaseCommentsListType"/>
+            <xs:element minOccurs="0" name="special-instructions-waybill" type="SIBillingInformationType"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="MultiWaybillAndReleaseDetailType">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="total-cars-requested" type="xs:int"/>
+            <xs:element minOccurs="0" name="final-request" type="xs:boolean"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TrainReleaseCommentsListType">
+        <xs:sequence>
+            <xs:element maxOccurs="100" minOccurs="0" name="train-release-comment" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="SIBillingInformationType">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="system-destination-circ7" type="xs:string"/>
+            <xs:element minOccurs="0" name="system-origin-circ7" type="xs:string"/>
+            <xs:element minOccurs="0" name="customer" type="xs:string"/>
+            <xs:element minOccurs="0" name="offline-road" type="xs:string"/>
+            <xs:element minOccurs="0" name="destination-city" type="xs:string"/>
+            <xs:element minOccurs="0" name="destination-state" type="xs:string"/>
+            <xs:element minOccurs="0" name="road-one" type="xs:string"/>
+            <xs:element minOccurs="0" name="junction-one" type="xs:string"/>
+            <xs:element minOccurs="0" name="road-two" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TmiRequestDetailType">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="requested-user-id" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ReleaseEquipmentListType">
+        <xs:sequence>
+            <xs:element maxOccurs="unbounded" minOccurs="0" name="release-equipment" type="ReleaseEquipmentType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="ReleaseEquipmentType">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="equipment-identifier" type="EquipmentIdentifierType">
+                <xs:annotation>
+                    <xs:documentation>For invalid initial/number PRID won't be present</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="sequence-from-front" type="xs:int"/>
+            <xs:element minOccurs="0" name="refused-reason" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>ETC group EqRefusedReason</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element minOccurs="0" name="is-buffer-car" type="xs:boolean"/>
+            <xs:element minOccurs="0" name="is-hazardous-car" type="xs:boolean"/>
+            <xs:element minOccurs="0" name="task-list" type="TaskListType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="EquipmentIdentifierType">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="physical-resource-id" type="PhysicalResourceIdType"/>
+            <xs:element minOccurs="0" name="equipment-id" type="EquipmentIdType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="PhysicalResourceIdType">
+        <xs:restriction base="xs:long"/>
+    </xs:simpleType>
+    <xs:complexType name="EquipmentIdType">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="equipment-initial">
+                <xs:simpleType>
+                    <xs:restriction base="EquipmentInitialType">
+                        <xs:pattern value="[A-Za-z]{1,4}"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element minOccurs="0" name="equipment-number" type="EquipmentNumberType"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="EquipmentInitialType">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+    <xs:simpleType name="EquipmentNumberType">
+        <xs:restriction base="xs:long"/>
+    </xs:simpleType>
+
+    <xs:complexType name="TrainIdentificationType">
+        <xs:sequence>
+            <xs:element name="train-key" type="TrainKeyType"/>
+            <xs:element name="train-id" type="TrainIdType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="TrainKeyType">
+        <xs:restriction base="xs:long"/>
+    </xs:simpleType>
+    <xs:simpleType name="SystemStationIdType">
+        <xs:annotation>
+            <xs:documentation>SSID</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:long"/>
+    </xs:simpleType>
+
+    <xs:complexType name="TaskListType">
+        <xs:annotation>
+            <xs:documentation>Tasks receieved in the release request</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element maxOccurs="50" minOccurs="0" name="task" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TaskAndStatusListType">
+        <xs:annotation>
+            <xs:documentation>Tasks to be performed from the release request. e.g; Create Empty Waybill, Release , Trainset etc..</xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element maxOccurs="50" minOccurs="0" name="task-and-status" type="TaskAndStatusType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TaskAndStatusType">
+        <xs:sequence>
+            <xs:element minOccurs="0" name="task-name" type="xs:string"/>
+            <xs:element minOccurs="0" name="task-status" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="TrainIdType">
+        <xs:sequence>
+            <xs:element name="train-section">
+                <xs:annotation>
+                    <xs:documentation>If the section is not a numeric value, then a value of a space will be specified.</xs:documentation>
+                </xs:annotation>
+                <xs:simpleType>
+                    <xs:restriction base="TrainSectionType"/>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="train-symbol">
+                <xs:simpleType>
+                    <xs:restriction base="TrainSymbolType"/>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="train-date" type="xs:date">
+                <xs:annotation>
+                    <xs:documentation>The train date for the Operating Train</xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:simpleType name="TrainSectionType">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+    <xs:simpleType name="TrainSymbolType">
+        <xs:restriction base="xs:string"/>
+    </xs:simpleType>
+
+    <xs:complexType name="AuditType">
+        <xs:sequence minOccurs="0">
+            <xs:element minOccurs="0" name="created-timestamp" type="xs:dateTime"/>
+            <xs:element minOccurs="0" name="created-user-id" type="xs:string"/>
+            <xs:element minOccurs="0" name="created-source-business-function" type="xs:string"/>
+            <xs:element minOccurs="0" name="last-updated-timestamp" type="xs:dateTime"/>
+            <xs:element minOccurs="0" name="last-updated-user-id" type="xs:string"/>
+            <xs:element minOccurs="0" name="last-updated-source-business-function" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

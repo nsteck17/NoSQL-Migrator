@@ -9,12 +9,20 @@ import java.util.Map;
 import java.util.HashMap;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
+import net.sf.jsqlparser.statement.select.Select;
+import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.ExpressionVisitorAdapter;
+import net.sf.jsqlparser.schema.Column;
 
 public class DmlAnalysis {
     // Global array to store parsed SQL statements
-    private static List<String> globalSqlStatements = new ArrayList<>();
+    private static final List<String> globalSqlStatements = new ArrayList<>();
     // Global array to store columns used in WHERE clauses (indexes needed)
-    private static List<List<String>> globalWhereClauseColumns = new ArrayList<>();
+    private static final List<List<String>> globalWhereClauseColumns = new ArrayList<>();
 
     /**
      * Parses the input SQL string and extracts individual SQL statements.
@@ -112,8 +120,55 @@ public class DmlAnalysis {
      */
     public static boolean containsJoin(String sql) {
         if (sql == null) return false;
-        // Use regex to match JOIN as a word, case-insensitive
-        return sql.matches("(?i).*\\bJOIN\\b.*");
+        // Use Pattern/Matcher to find JOIN as a word, case-insensitive, anywhere in the string
+        Pattern joinPattern = Pattern.compile("\\bJOIN\\b", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = joinPattern.matcher(sql);
+        return matcher.find();
+    }
+
+    /**
+     * Extracts the table names involved in JOIN clauses from a SQL statement.
+     * Uses JSqlParser to robustly handle various JOIN types and multiple JOINs.
+     *
+     * @param sql The SQL statement to analyze.
+     * @return List of table names involved in JOINs. Empty if none or not a SELECT.
+     */
+    public static List<String> getJoinTables(String sql) {
+        List<String> joinTables = new ArrayList<>();
+        if (sql == null) return joinTables;
+        try {
+            Statement statement = CCJSqlParserUtil.parse(sql);
+            if (statement instanceof Select) {
+                Select select = (Select) statement;
+                if (select.getSelectBody() instanceof PlainSelect) {
+                    PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
+                    // Handle main FROM table if present
+                    if (plainSelect.getFromItem() != null) {
+                        String fromTable = plainSelect.getFromItem().toString();
+                        // Only add if it's a table (not a subselect)
+                        if (plainSelect.getFromItem() instanceof net.sf.jsqlparser.schema.Table) {
+                            // Remove alias if present (take only first word)
+                            String tableName = fromTable.split("\\s+")[0];
+                            joinTables.add(tableName);
+                        }
+                    }
+                    // Handle JOINs
+                    if (plainSelect.getJoins() != null) {
+                        for (net.sf.jsqlparser.statement.select.Join join : plainSelect.getJoins()) {
+                            if (join.getRightItem() instanceof net.sf.jsqlparser.schema.Table) {
+                                String joinTable = join.getRightItem().toString();
+                                // Remove alias if present (take only first word)
+                                String tableName = joinTable.split("\\s+")[0];
+                                joinTables.add(tableName);
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Ignore parse errors for non-SELECT or malformed statements
+        }
+        return joinTables;
     }
 
     /**
@@ -138,24 +193,27 @@ public class DmlAnalysis {
      * Displays the check results for each SQL statement.
      * @param checks Map of check name to Predicate<String>.
      */
-    public static void displayCheckResults(Map<String, Predicate<String>> checks, BufferedWriter writer) throws IOException {
+    public static void displayCheckResults(Map<String, Predicate<String>> checks, java.io.Writer writer) throws IOException {
+        PrintWriter pw = (writer instanceof PrintWriter) ? (PrintWriter) writer : new PrintWriter(writer, true);
         List<Map<String, Boolean>> results = checkAllSql(checks);
         List<String> sqls = getGlobalSqlStatements();
         for (int i = 0; i < sqls.size(); i++) {
-            writer.write("SQL Statement " + (i + 1) + ":\n");
-            writer.write(sqls.get(i) + "\n");
+            pw.println("SQL Statement " + (i + 1) + ":");
+            pw.println(sqls.get(i));
             Map<String, Boolean> checkResult = results.get(i);
             for (Map.Entry<String, Boolean> entry : checkResult.entrySet()) {
-                writer.write("  " + entry.getKey() + ": " + entry.getValue() + "\n");
+                pw.println("  " + entry.getKey() + ": " + entry.getValue());
             }
             // Output columns used in WHERE clause for this statement
-            List<List<String>> whereColumns = getAllWhereClauseColumns();
+            List<List<String>> whereColumns = getAllWhereClauseColumnsJSqlParser();
             if (i < whereColumns.size()) {
                 List<String> cols = whereColumns.get(i);
-                writer.write("  Columns in WHERE clause: " + (cols.isEmpty() ? "None" : String.join(", ", cols)) + "\n");
+                pw.println("  Columns in WHERE clause: " + (cols.isEmpty() ? "None" : String.join(", ", cols)));
             }
-            writer.write("\n");
+            pw.println();
+            // Output the tabl
         }
+        pw.flush();
     }
 
     /**
@@ -173,19 +231,59 @@ public class DmlAnalysis {
         Matcher matcher = wherePattern.matcher(sql);
         if (matcher.find()) {
             String whereClause = matcher.group(1);
-            // Remove string literals to avoid confusion
+            // Remove string literals and quotes to avoid confusion
             whereClause = whereClause.replaceAll("'[^']*'", "");
             whereClause = whereClause.replaceAll("\"[^\"]*\"", "");
-            // Split by AND/OR (case-insensitive)
-            String[] conditions = whereClause.split("(?i)\\bAND\\b|\\bOR\\b");
-            for (String cond : conditions) {
-                // Try to extract the column name (before =, <, >, <=, >=, <>, !=)
-                Matcher colMatcher = Pattern.compile("([a-zA-Z_][a-zA-Z0-9_\\.]*)\\s*(?=[=<>!])").matcher(cond);
-                if (colMatcher.find()) {
-                    String col = colMatcher.group(1).trim();
+            whereClause = whereClause.replace("'", "");
+            whereClause = whereClause.replace("\"", "");
+            // Remove parentheses to simplify matching
+            whereClause = whereClause.replaceAll("[()]", " ");
+            // Normalize whitespace
+            whereClause = whereClause.replaceAll("\\s+", " ");
+            // Use a global matcher to find all column/operator pairs, including NOT IN/LIKE/BETWEEN
+            Pattern colPattern = Pattern.compile(
+                "([a-zA-Z_][a-zA-Z0-9_\\.]*)\\s*(NOT\\s+IN|NOT\\s+LIKE|NOT\\s+BETWEEN|>=|<=|<>|!=|=|<|>|IN|LIKE|IS|BETWEEN)",
+                Pattern.CASE_INSENSITIVE
+            );
+            Matcher colMatcher = colPattern.matcher(whereClause);
+            while (colMatcher.find()) {
+                String col = colMatcher.group(1).trim();
+                if (!columns.contains(col)) {
                     columns.add(col);
                 }
             }
+        }
+        return columns;
+    }
+
+    /**
+     * Uses JSqlParser to extract all column names used in the WHERE clause of a SQL statement.
+     * Handles complex/nested conditions robustly.
+     * @param sql The SQL statement.
+     * @return List of column names used in the WHERE clause.
+     */
+    public static List<String> getWhereClauseColumnsJSqlParser(String sql) {
+        List<String> columns = new ArrayList<>();
+        try {
+            Statement statement = CCJSqlParserUtil.parse(sql);
+            if (statement instanceof Select) {
+                Select select = (Select) statement;
+                PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
+                Expression where = plainSelect.getWhere();
+                if (where != null) {
+                    where.accept(new ExpressionVisitorAdapter() {
+                        @Override
+                        public void visit(Column column) {
+                            String colName = column.getFullyQualifiedName();
+                            if (!columns.contains(colName)) {
+                                columns.add(colName);
+                            }
+                        }
+                    });
+                }
+            }
+        } catch (Exception e) {
+            // Ignore parse errors for non-SELECT statements
         }
         return columns;
     }
@@ -200,5 +298,78 @@ public class DmlAnalysis {
             allColumns.add(getWhereClauseColumns(sql));
         }
         return allColumns;
+    }
+
+    /**
+     * For each global SQL statement, finds columns used in WHERE clauses using JSqlParser.
+     * @return List of List<String>, each inner list is columns for a statement.
+     */
+    public static List<List<String>> getAllWhereClauseColumnsJSqlParser() {
+        List<List<String>> allColumns = new ArrayList<>();
+        for (String sql : globalSqlStatements) {
+            allColumns.add(getWhereClauseColumnsJSqlParser(sql));
+        }
+        return allColumns;
+    }
+
+    /**
+     * For each global SQL statement, finds all comparison operators used in WHERE clauses using JSqlParser.
+     * @return List of List<String>, each inner list is operators for a statement.
+     */
+    public static List<List<String>> getAllWhereClauseOperatorsJSqlParser() {
+        List<List<String>> allOperators = new ArrayList<>();
+        for (String sql : globalSqlStatements) {
+            allOperators.add(getWhereClauseOperatorsJSqlParser(sql));
+        }
+        return allOperators;
+    }
+
+    /**
+     * Uses JSqlParser to extract all comparison operators used in the WHERE clause of a SQL statement.
+     * Handles complex/nested conditions robustly.
+     * @param sql The SQL statement.
+     * @return List of operators (e.g., '=', '<', '>', '<=', '>=', '<>', '!=') used in the WHERE clause.
+     */
+    public static List<String> getWhereClauseOperatorsJSqlParser(String sql) {
+        List<String> operators = new ArrayList<>();
+        try {
+            Statement statement = CCJSqlParserUtil.parse(sql);
+            if (statement instanceof Select) {
+                Select select = (Select) statement;
+                PlainSelect plainSelect = (PlainSelect) select.getSelectBody();
+                Expression where = plainSelect.getWhere();
+                if (where != null) {
+                    where.accept(new ExpressionVisitorAdapter() {
+                        @Override
+                        public void visit(net.sf.jsqlparser.expression.operators.relational.EqualsTo expr) {
+                            operators.add("=");
+                        }
+                        @Override
+                        public void visit(net.sf.jsqlparser.expression.operators.relational.GreaterThan expr) {
+                            operators.add(">");
+                        }
+                        @Override
+                        public void visit(net.sf.jsqlparser.expression.operators.relational.MinorThan expr) {
+                            operators.add("<");
+                        }
+                        @Override
+                        public void visit(net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals expr) {
+                            operators.add(">=");
+                        }
+                        @Override
+                        public void visit(net.sf.jsqlparser.expression.operators.relational.MinorThanEquals expr) {
+                            operators.add("<=");
+                        }
+                        @Override
+                        public void visit(net.sf.jsqlparser.expression.operators.relational.NotEqualsTo expr) {
+                            operators.add("!=");
+                        }
+                    });
+                }
+            }
+        } catch (Exception e) {
+            // Ignore parse errors for non-SELECT statements
+        }
+        return operators;
     }
 }
